@@ -5,10 +5,6 @@ import (
 	"net/http"
 )
 
-func CreateTcpConnection() {
-
-}
-
 func main() {
 
 	router.HandleRequest()

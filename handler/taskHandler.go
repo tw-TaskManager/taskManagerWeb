@@ -6,13 +6,24 @@ import (
 	"fmt"
 	"log"
 	"io/ioutil"
+	"github.com/golang/protobuf/proto"
+	"taskManagerClient/contract"
+	"taskManagerWeb/model"
+	"bytes"
 )
 
 func SaveTask(res http.ResponseWriter, req *http.Request) {
 	req.ParseForm()
 	task := strings.Join(req.Form["task"], "")
-	fmt.Println(task)
-	request, err := http.NewRequest(http.MethodPost, "http://localhost:3000/tasks", strings.NewReader(task))
+	data := &contract.Task{}
+	data.Task = &task
+	dataToSend, err := proto.Marshal(data)
+	if (err != nil) {
+		log.Fatal("error occurs while creationg contract.")
+		return
+	}
+
+	request, err := model.CreateRequest(http.MethodPost, "http://localhost:3000/tasks", bytes.NewBuffer(dataToSend))
 	if (err != nil) {
 		log.Fatalln("got error while creating server..")
 		return
@@ -28,8 +39,7 @@ func SaveTask(res http.ResponseWriter, req *http.Request) {
 
 func GetAllTask(res http.ResponseWriter, req *http.Request) {
 	fmt.Println("edcw")
-	request, _ := http.NewRequest(http.MethodGet, "http://localhost:3000/tasks", nil)
-
+	request, _ := model.CreateRequest(http.MethodGet, "http://localhost:3000/tasks", nil)
 	client := http.Client{}
 	response, err := client.Do(request)
 	if (err != nil) {
