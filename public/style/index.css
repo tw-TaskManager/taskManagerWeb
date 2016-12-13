@@ -1,0 +1,47 @@
+h1 {
+    font-size: 50px;
+    text-align: left;
+    font-family: cursive;
+}
+
+body {
+    background-color: whitesmoke;
+}
+
+.stickyContainer {
+    display: inline-block;
+}
+
+.sticky {
+    margin: 20px;
+    font-size: x-large;
+    font-family:serif
+    resize: none;
+    border: groove;
+    background-color: aliceblue;
+}
+
+#add:before {
+    content: '+';
+}
+
+#add, #save {
+    background-color: limegreen;
+    border-radius: 10px;
+    border: 1px solid darkgreen;
+    cursor: pointer;
+    font-size: 50px;
+    padding: 0 20px 5px 20px;
+    outline: none;
+    float: right;
+    margin: -100px 30px 0 0;
+}
+
+#add:hover {
+    background-color: #5cbf2a;
+}
+
+#add:active {
+    position: relative;
+    top: 1px;
+}

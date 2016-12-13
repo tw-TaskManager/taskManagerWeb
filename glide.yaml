@@ -1,3 +1,3 @@
-package: task_manager_web
+package: taskManagerWeb
 import:
 - package: github.com/gorilla/mux

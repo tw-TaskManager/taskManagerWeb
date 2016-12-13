@@ -3,7 +3,7 @@ package router
 import (
 	"github.com/gorilla/mux"
 	"net/http"
-	task_handler "task_manager_web/handler"
+	task_handler "taskManagerWeb/handler"
 )
 
 func HandleRequest() {

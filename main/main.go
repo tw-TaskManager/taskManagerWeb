@@ -1,7 +1,7 @@
 package main
 
 import (
-	"task_manager_web/router"
+	"taskManagerWeb/router"
 	"net/http"
 )
 

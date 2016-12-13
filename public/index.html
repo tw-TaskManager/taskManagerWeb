@@ -2,16 +2,21 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <link rel="stylesheet" href="style/index.css">
     <script type="text/javascript" src="./js/jquery-2.1.4.min.js"></script>
     <script type="text/javascript" src="./js/main.js"></script>
     <title>Task Manager</title>
 </head>
 <body>
-<h1 style="text-align:center">Task Manager</h1>
-<div id="save">
-    <input type="text"/>
-    <button type="submit" onclick="save()">save task</button>
+<header>
+    <h1>Task Manager</h1>
+    <button id="add" onclick="addSticky()"></button>
+</header>
+<hr>
+<div id="new">
+    <button id="save" onclick="saveSticky()" hidden>Save</button>
 </div>
-<div id="tasks"></div>
+
+<div id="stickies"></div>
 </body>
 </html>
