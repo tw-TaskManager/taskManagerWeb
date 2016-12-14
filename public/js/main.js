@@ -1,6 +1,9 @@
 function save(content) {
+  var id;
   $.post('/tasks', {task: content}, function (res, err) {
+    id = res.Id;
   })
+  return id;
 }
 
 function textArea(content, id) {
@@ -23,20 +26,24 @@ function textArea(content, id) {
 //   return deleteButton;
 // }
 
-function createStickies(contentList, id) {
-  var stickyContainer = $('#stickies')[0];
-  contentList.forEach(function (content, index = id || index) {
+
+function createSticky(data, stickyContainer){
     var div = document.createElement('div');
     div.classList.add('stickyContainer');
-    stickyContainer.prepend(div.appendChild(textArea(content, index)));
+    stickyContainer.prepend(div.appendChild(textArea(data.Task, data.Id)));
+}
+
+function showStickies(dataList) {
+  var stickyContainer = $('#stickies')[0];
+  dataList.forEach(function (data) {
+    createSticky(data, stickyContainer);
   });
 }
 
-function allTask() {
-  $.get('/tasks', function (res, err) {
-    res = res.split('<br/>');
-    res.length -= 1;
-    createStickies(res);
+function getAll() {
+  $.get('/tasks', function (data, status) {
+    data=JSON.parse(data)
+    showStickies(data);
   })
 }
 
@@ -44,8 +51,7 @@ function addSticky() {
   $('#add').hide();
   var newBlock = $('#new');
   var listOfStickies = $('.sticky');
-  var id = listOfStickies.length != 0 ? Number(listOfStickies.first()[0].id) + 1 : 1;
-  var node = textArea('', id);
+  var node = textArea('', 'new');
   var div = document.createElement('div');
   div.classList.add('new');
 
@@ -66,12 +72,24 @@ function reset() {
 
 }
 
+function filterSticky() {
+    var newSticky;
+    getAll().filter(function(){
+
+    })
+    return newSticky;
+}
+
+function update() {
+    createSticky()
+}
+
 function saveSticky() {
   var newSticky = $('.new').children();
   var content = newSticky.val();
-  createStickies([content], newSticky.id);
-  debugger;
   save(content);
+  update()
+//  showStickies([{Task:content, id: id}]);
   reset();
 }
 

@@ -3,13 +3,13 @@ package handler
 import (
 	"net/http"
 	"strings"
-	"fmt"
 	"log"
 	"io/ioutil"
 	"github.com/golang/protobuf/proto"
 	"taskManagerClient/contract"
 	"taskManagerWeb/model"
 	"bytes"
+	"fmt"
 )
 
 func SaveTask(res http.ResponseWriter, req *http.Request) {
@@ -38,7 +38,6 @@ func SaveTask(res http.ResponseWriter, req *http.Request) {
 }
 
 func GetAllTask(res http.ResponseWriter, req *http.Request) {
-	fmt.Println("edcw")
 	request, _ := model.CreateRequest(http.MethodGet, "http://localhost:3000/tasks", nil)
 	client := http.Client{}
 	response, err := client.Do(request)
@@ -47,5 +46,12 @@ func GetAllTask(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 	body, err := ioutil.ReadAll(response.Body)
-	res.Write([]byte(body))
+	contractOfResponse := contract.Response{}
+	err = proto.Unmarshal(body, &contractOfResponse)
+	fmt.Println()
+	if (err != nil) {
+		log.Fatalln("got error while parsing;..")
+		return
+	}
+	res.Write(contractOfResponse.Response)
 }
