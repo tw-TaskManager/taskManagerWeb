@@ -15,7 +15,7 @@ body {
 .sticky {
     margin: 20px;
     font-size: x-large;
-    font-family:serif
+    font-family: serif;
     resize: none;
     border: groove;
     background-color: aliceblue;
