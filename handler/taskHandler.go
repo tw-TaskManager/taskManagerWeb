@@ -88,3 +88,30 @@ func GetAllTask(res http.ResponseWriter, req *http.Request) {
 	}
 	res.Write(contractOfResponse.Response)
 }
+
+func DeleteTask(res http.ResponseWriter, req *http.Request) {
+	req.ParseForm()
+	taskId := req.Form["id"][0];
+	id64, err := strconv.ParseInt(taskId, 10, 32)
+	id32 := int32(id64)
+	data := &contract.Task{}
+	data.Id = &id32
+	dataToSend, err := proto.Marshal(data)
+	if (err != nil) {
+		log.Fatal("error occurs while creationg contract.")
+		return
+	}
+
+	request, err := model.CreateRequest(http.MethodPost, "http://localhost:3000/task/delete", bytes.NewBuffer(dataToSend))
+	if (err != nil) {
+		log.Fatalln("got error while creating server..")
+		return
+	}
+	client := http.Client{};
+	_, err = client.Do(request);
+	if (err != nil) {
+		log.Fatalln("got error while calling server;..")
+		return
+	}
+	res.Write([]byte("deleted."))
+}
