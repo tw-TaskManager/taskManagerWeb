@@ -12,13 +12,17 @@ body {
     display: inline-block;
 }
 
+table{
+    width:80%
+}
+
 .sticky {
     margin: 20px;
     font-size: x-large;
     font-family: serif;
     resize: none;
     border: groove;
-    background-color: aliceblue;
+    background-color: lightgrey;
 }
 
 #add:before {
@@ -26,8 +30,8 @@ body {
 }
 
 #add, #save {
-    background-color: limegreen;
     border-radius: 10px;
+    background-color: limegreen;
     border: 1px solid darkgreen;
     cursor: pointer;
     font-size: 50px;
@@ -44,4 +48,13 @@ body {
 #add:active {
     position: relative;
     top: 1px;
+}
+
+.delete{
+    border-radius: 10px;
+        background-color: limegreen;
+        border: 1px solid darkgreen;
+        font-size: 20px;
+        outline: none;
+        float: right;
 }

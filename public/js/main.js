@@ -27,19 +27,38 @@ var database = {
   }
 };
 
+var table = document.createElement('table');
 var dom = {
 
   stickyDom(content, id) {
+    tableRow = table.insertRow(0);
+    tableRow.insertCell(0).appendChild(this.createAreaNode(content,id))
+    tableRow.insertCell(1).appendChild(this.createDeleteButton(id))
+    return table;
+  },
+
+  createAreaNode(content,id) {
     var node = document.createElement('textarea');
     node.id = id;
     node.classList.add('sticky');
-    node.style.width = '60%';
+    node.style.width = '80%';
     node.style.height = '40px';
-    node.addEventListener("focusout", setFocused);
+    node.addEventListener("focusout", updateStickyOnFocusOut);
+    node.addEventListener("focusin", highlightStickyOnFocus);
     var textNode = document.createTextNode(content);
     node.appendChild(textNode);
     return node;
-  }
+  },
+
+  createDeleteButton(id){
+         var deleteButton = document.createElement('button');
+         deleteButton.id = id;
+         deleteButton.classList.add('delete')
+         deleteButton.innerHTML = 'Delete Task'
+         deleteButton.onclick = stickyManager.deleteSticky.bind(null, database.removeSticky)
+         return deleteButton;
+   }
+
 };
 
 
@@ -51,21 +70,8 @@ function Sticky(content, id){
 
 Sticky.prototype={
   show:function() {
-      var div = document.createElement('div');
-      var node = dom.stickyDom(this.content, this.id)
-      div.appendChild(node)
-      div.appendChild(this.createDeleteButton())
-      stickyArea.prepend(div);
+      stickyArea.prepend(dom.stickyDom(this.content, this.id));
 
-   },
-
-   createDeleteButton(){
-         var deleteButton = document.createElement('button');
-         deleteButton.id = this.id;
-         deleteButton.classList.add('delete')
-         deleteButton.innerHTML = 'Delete Task'
-         deleteButton.onclick = stickyManager.deleteSticky.bind(null, database.removeSticky)
-         return deleteButton;
    }
 }
 
@@ -107,10 +113,16 @@ var insertNewSticky = function () {
   })
 };
 
-var setFocused = function(event) {
+var updateStickyOnFocusOut = function(event) {
     var id = event.target.id;
     var content = $('#'+id).val();
+    event.target.style.backgroundColor = '';
     database.updateSticky(id, content)
+}
+
+
+var highlightStickyOnFocus = function(event) {
+    event.target.style.backgroundColor = 'lightyellow';
 }
 
 $(document).ready(function(){
