@@ -115,3 +115,60 @@ func DeleteTask(res http.ResponseWriter, req *http.Request) {
 	}
 	res.Write([]byte("deleted."))
 }
+
+func CreateUser(res http.ResponseWriter, req *http.Request) {
+	req.ParseForm()
+	userName := req.Form["userName"][0]
+	emailId := req.Form["emailId"][0]
+	password := req.Form["password"][0]
+	user := &contract.User{}
+	user.UserName = &userName
+	user.EmailId = &emailId
+	user.Password = &password
+	data_to_send, err := proto.Marshal(user)
+	if (err != nil) {
+		log.Fatal("error occurs while creationg contract for user.")
+		return
+	}
+	request, err := model.CreateRequest(http.MethodPost, "http://localhost:5000/task/createUser", bytes.NewBuffer(data_to_send))
+
+	if (err != nil) {
+		log.Fatalln("got error while creating server..")
+		return
+	}
+	client := http.Client{};
+	_, err = client.Do(request);
+	if (err != nil) {
+		log.Fatalln("got error while calling server.....")
+		return
+	}
+	res.Write([]byte("user has created"))
+
+}
+
+func LoginUser(res http.ResponseWriter, req *http.Request) {
+	req.ParseForm()
+	userName := req.Form["userName"][0]
+	password := req.Form["password"][0]
+	user := &contract.User{}
+	user.UserName = &userName
+	user.Password = &password
+	data_to_send, err := proto.Marshal(user)
+	if (err != nil) {
+		log.Fatal("error occurs while creationg contract for user.")
+		return
+	}
+
+	request, err := model.CreateRequest(http.MethodPost, "http://localhost:5000/task/login", bytes.NewBuffer(data_to_send))
+	client := http.Client{}
+	response, err := client.Do(request)
+	body, err := ioutil.ReadAll(response.Body)
+	contractOfResponse := contract.Response{}
+	err = proto.Unmarshal(body, &contractOfResponse)
+	if (err != nil) {
+		res.Write([]byte("/login.html"))
+		return
+	}
+	http.Redirect(res,req,"/index.html",302)
+	return
+}

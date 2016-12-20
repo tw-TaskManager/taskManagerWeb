@@ -33,7 +33,9 @@ var dom = {
   stickyDom(content, id) {
     tableRow = table.insertRow(0);
     tableRow.insertCell(0).appendChild(this.createAreaNode(content,id))
-    tableRow.insertCell(1).appendChild(this.createDeleteButton(id))
+    buttonColumn = tableRow.insertCell(1);
+    buttonColumn.id = "deleteButton"
+    buttonColumn.appendChild(this.createDeleteButton(id));
     return table;
   },
 
@@ -60,7 +62,6 @@ var dom = {
    }
 
 };
-
 
 function Sticky(content, id){
     this.id = id;

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="style/index.css">
+    <script type="text/javascript" src="./js/jquery-2.1.4.min.js"></script>
+    <title>Task Manager</title>
+</head>
+<body>
+
+<header>
+    <h1>Task Manager Login</h1>
+</header>
+<hr>
+<div id="signUp">
+    <form name="myForm" action="/task/createUser" method="post">
+        Name: <input type="text" name="userName">
+        Email: <input type="text" name="emailId">
+        password: <input type="text" name="password">
+        <input type="submit" value="sign Up">
+    </form>
+</div>
+
+<div id="logIn">
+    <form name="myForm" action="/task/login" method="post">
+        Name: <input type="text" name="userName">
+        password: <input type="text" name="password">
+        <input type="submit" value="sign">
+    </form>
+</div>
+
+
+</body>
+</html>
