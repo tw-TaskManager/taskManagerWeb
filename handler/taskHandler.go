@@ -11,6 +11,7 @@ import (
 	"bytes"
 	"strconv"
 	"fmt"
+	"time"
 )
 
 func SaveTask(res http.ResponseWriter, req *http.Request) {
@@ -80,6 +81,10 @@ func UpdateTask(res http.ResponseWriter, req *http.Request) {
 
 func GetAllTask(res http.ResponseWriter, req *http.Request) {
 	cookie, err := req.Cookie("taskManager")
+	if (err != nil) {
+		http.Redirect(res, req, "/login.html", http.StatusTemporaryRedirect)
+		return
+	}
 	taskRequest := "http://localhost:3000/tasks/" + cookie.Value
 	request, _ := model.CreateRequest(http.MethodGet, taskRequest, nil)
 	client := http.Client{}
@@ -101,6 +106,7 @@ func GetAllTask(res http.ResponseWriter, req *http.Request) {
 func DeleteTask(res http.ResponseWriter, req *http.Request) {
 	req.ParseForm()
 	cookie, err := req.Cookie("taskManager")
+	fmt.Println(cookie)
 	taskId := req.Form["id"][0];
 	id64, err := strconv.ParseInt(taskId, 10, 32)
 	id32 := int32(id64)
@@ -179,5 +185,20 @@ func Auth(res http.ResponseWriter, req *http.Request) {
 	}
 	http.SetCookie(res, &cookies)
 	http.Redirect(res, req, "/", http.StatusMovedPermanently)
+	return
+}
+
+func Logout(res http.ResponseWriter, req *http.Request) {
+	req.ParseForm()
+	cookies := http.Cookie{
+		Name:"taskManager",
+		Path:"/",
+		Expires:time.Now().AddDate(-3, 0, 0),
+	}
+	request, _ := model.CreateRequest(http.MethodGet, "http://localhost:5000/task/logout", nil)
+	client := http.Client{}
+	http.SetCookie(res, &cookies)
+	client.Do(request)
+	res.Write([]byte("/login.html"))
 	return
 }

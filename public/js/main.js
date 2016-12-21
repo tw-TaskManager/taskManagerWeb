@@ -27,6 +27,14 @@ var database = {
   }
 };
 
+function logout(name) {
+    $.get('/task/logout', function (data, status) {
+        window.location.href = "/login.html";
+    });
+}
+
+
+
 var table = document.createElement('table');
 var dom = {
 
