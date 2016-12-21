@@ -9,13 +9,14 @@ import (
 	"taskManagerClient/contract"
 	"taskManagerWeb/model"
 	"bytes"
-	"fmt"
 	"strconv"
+	"fmt"
 )
 
 func SaveTask(res http.ResponseWriter, req *http.Request) {
 	req.ParseForm()
 	task := strings.Join(req.Form["task"], "")
+	cookie, err := req.Cookie("taskManager")
 	data := &contract.Task{}
 	data.Task = &task
 	dataToSend, err := proto.Marshal(data)
@@ -24,7 +25,8 @@ func SaveTask(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	request, err := model.CreateRequest(http.MethodPost, "http://localhost:3000/tasks/save", bytes.NewBuffer(dataToSend))
+	taskRequest := "http://localhost:3000/tasks/save/" + cookie.Value
+	request, err := model.CreateRequest(http.MethodPost, taskRequest, bytes.NewBuffer(dataToSend))
 	if (err != nil) {
 		log.Fatalln("got error while creating server..")
 		return
@@ -32,7 +34,12 @@ func SaveTask(res http.ResponseWriter, req *http.Request) {
 	client := http.Client{};
 	response, err := client.Do(request);
 	body, err := ioutil.ReadAll(response.Body)
+	if (err != nil) {
+		log.Fatalln("got error while reading")
+		return
+	}
 	contractOfResponse := contract.Response{}
+	err = proto.Unmarshal(body, &contractOfResponse)
 	err = proto.Unmarshal(body, &contractOfResponse)
 	if (err != nil) {
 		log.Fatalln("got error while calling server;..")
@@ -43,6 +50,7 @@ func SaveTask(res http.ResponseWriter, req *http.Request) {
 
 func UpdateTask(res http.ResponseWriter, req *http.Request) {
 	req.ParseForm()
+	cookie, err := req.Cookie("taskManager")
 	content := strings.Join(req.Form["content"], "")
 	taskId := req.Form["id"][0];
 	id64, err := strconv.ParseInt(taskId, 10, 32)
@@ -55,8 +63,8 @@ func UpdateTask(res http.ResponseWriter, req *http.Request) {
 		log.Fatal("error occurs while creationg contract.")
 		return
 	}
-
-	request, err := model.CreateRequest(http.MethodPost, "http://localhost:3000/task/update", bytes.NewBuffer(dataToSend))
+	taskRequest := "http://localhost:3000/task/update/" + cookie.Value
+	request, err := model.CreateRequest(http.MethodPost, taskRequest, bytes.NewBuffer(dataToSend))
 	if (err != nil) {
 		log.Fatalln("got error while creating server..")
 		return
@@ -71,7 +79,9 @@ func UpdateTask(res http.ResponseWriter, req *http.Request) {
 }
 
 func GetAllTask(res http.ResponseWriter, req *http.Request) {
-	request, _ := model.CreateRequest(http.MethodGet, "http://localhost:3000/tasks", nil)
+	cookie, err := req.Cookie("taskManager")
+	taskRequest := "http://localhost:3000/tasks/" + cookie.Value
+	request, _ := model.CreateRequest(http.MethodGet, taskRequest, nil)
 	client := http.Client{}
 	response, err := client.Do(request)
 	if (err != nil) {
@@ -81,9 +91,8 @@ func GetAllTask(res http.ResponseWriter, req *http.Request) {
 	body, err := ioutil.ReadAll(response.Body)
 	contractOfResponse := contract.Response{}
 	err = proto.Unmarshal(body, &contractOfResponse)
-	fmt.Println()
 	if (err != nil) {
-		log.Fatalln("got error while parsing;..")
+		fmt.Println(err.Error())
 		return
 	}
 	res.Write(contractOfResponse.Response)
@@ -91,6 +100,7 @@ func GetAllTask(res http.ResponseWriter, req *http.Request) {
 
 func DeleteTask(res http.ResponseWriter, req *http.Request) {
 	req.ParseForm()
+	cookie, err := req.Cookie("taskManager")
 	taskId := req.Form["id"][0];
 	id64, err := strconv.ParseInt(taskId, 10, 32)
 	id32 := int32(id64)
@@ -101,8 +111,8 @@ func DeleteTask(res http.ResponseWriter, req *http.Request) {
 		log.Fatal("error occurs while creationg contract.")
 		return
 	}
-
-	request, err := model.CreateRequest(http.MethodPost, "http://localhost:3000/task/delete", bytes.NewBuffer(dataToSend))
+	taskRequest := "http://localhost:3000/task/delete/" + cookie.Value
+	request, err := model.CreateRequest(http.MethodPost, taskRequest, bytes.NewBuffer(dataToSend))
 	if (err != nil) {
 		log.Fatalln("got error while creating server..")
 		return
@@ -146,7 +156,7 @@ func CreateUser(res http.ResponseWriter, req *http.Request) {
 
 }
 
-func LoginUser(res http.ResponseWriter, req *http.Request) {
+func Auth(res http.ResponseWriter, req *http.Request) {
 	req.ParseForm()
 	userName := req.Form["userName"][0]
 	password := req.Form["password"][0]
@@ -162,13 +172,12 @@ func LoginUser(res http.ResponseWriter, req *http.Request) {
 	request, err := model.CreateRequest(http.MethodPost, "http://localhost:5000/task/login", bytes.NewBuffer(data_to_send))
 	client := http.Client{}
 	response, err := client.Do(request)
-	body, err := ioutil.ReadAll(response.Body)
-	contractOfResponse := contract.Response{}
-	err = proto.Unmarshal(body, &contractOfResponse)
-	if (err != nil) {
-		res.Write([]byte("/login.html"))
-		return
+	cookies := http.Cookie{
+		Name:"taskManager",
+		Value:response.Cookies()[0].Value,
+		Path:"/",
 	}
-	http.Redirect(res,req,"/index.html",302)
+	http.SetCookie(res, &cookies)
+	http.Redirect(res, req, "/", http.StatusMovedPermanently)
 	return
 }

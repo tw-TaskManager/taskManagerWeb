@@ -13,7 +13,7 @@ func HandleRequest() {
 	handler.HandleFunc("/task/update", task_handler.UpdateTask).Methods(http.MethodPost)
 	handler.HandleFunc("/task/delete", task_handler.DeleteTask).Methods(http.MethodPost)
 	handler.HandleFunc("/task/createUser", task_handler.CreateUser).Methods(http.MethodPost)
-	handler.HandleFunc("/task/login", task_handler.LoginUser).Methods(http.MethodPost)
+	handler.HandleFunc("/task/login", task_handler.Auth).Methods(http.MethodPost)
 	handler.PathPrefix("/").Handler(http.FileServer(http.Dir("./public")))
 	http.Handle("/", handler)
 }
