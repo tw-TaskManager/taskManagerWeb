@@ -10,14 +10,14 @@ import (
 	"taskManagerWeb/model"
 	"bytes"
 	"strconv"
-	"fmt"
 	"time"
+	"fmt"
 )
 
 func SaveTask(res http.ResponseWriter, req *http.Request) {
+	cookie, err := req.Cookie("taskManager")
 	req.ParseForm()
 	task := strings.Join(req.Form["task"], "")
-	cookie, err := req.Cookie("taskManager")
 	data := &contract.Task{}
 	data.Task = &task
 	dataToSend, err := proto.Marshal(data)
@@ -25,7 +25,6 @@ func SaveTask(res http.ResponseWriter, req *http.Request) {
 		log.Fatal("error occurs while creationg contract.")
 		return
 	}
-
 	taskRequest := "http://localhost:3000/tasks/save/" + cookie.Value
 	request, err := model.CreateRequest(http.MethodPost, taskRequest, bytes.NewBuffer(dataToSend))
 	if (err != nil) {
@@ -50,8 +49,8 @@ func SaveTask(res http.ResponseWriter, req *http.Request) {
 }
 
 func UpdateTask(res http.ResponseWriter, req *http.Request) {
-	req.ParseForm()
 	cookie, err := req.Cookie("taskManager")
+	req.ParseForm()
 	content := strings.Join(req.Form["content"], "")
 	taskId := req.Form["id"][0];
 	id64, err := strconv.ParseInt(taskId, 10, 32)
@@ -97,7 +96,6 @@ func GetAllTask(res http.ResponseWriter, req *http.Request) {
 	contractOfResponse := contract.Response{}
 	err = proto.Unmarshal(body, &contractOfResponse)
 	if (err != nil) {
-		fmt.Println(err.Error())
 		return
 	}
 	res.Write(contractOfResponse.Response)
@@ -106,7 +104,6 @@ func GetAllTask(res http.ResponseWriter, req *http.Request) {
 func DeleteTask(res http.ResponseWriter, req *http.Request) {
 	req.ParseForm()
 	cookie, err := req.Cookie("taskManager")
-	fmt.Println(cookie)
 	taskId := req.Form["id"][0];
 	id64, err := strconv.ParseInt(taskId, 10, 32)
 	id32 := int32(id64)
@@ -158,7 +155,8 @@ func CreateUser(res http.ResponseWriter, req *http.Request) {
 		log.Fatalln("got error while calling server.....")
 		return
 	}
-	res.Write([]byte("user has created"))
+
+	http.Redirect(res, req, "/login.html", http.StatusTemporaryRedirect)
 
 }
 
@@ -178,6 +176,7 @@ func Auth(res http.ResponseWriter, req *http.Request) {
 	request, err := model.CreateRequest(http.MethodPost, "http://localhost:5000/task/login", bytes.NewBuffer(data_to_send))
 	client := http.Client{}
 	response, err := client.Do(request)
+	fmt.Println(response.Cookies()[0].Value, "inside auth")
 	cookies := http.Cookie{
 		Name:"taskManager",
 		Value:response.Cookies()[0].Value,
@@ -192,8 +191,9 @@ func Logout(res http.ResponseWriter, req *http.Request) {
 	req.ParseForm()
 	cookies := http.Cookie{
 		Name:"taskManager",
+		Value:"",
 		Path:"/",
-		Expires:time.Now().AddDate(-3, 0, 0),
+		Expires:time.Now().AddDate(-10, -4, -1),
 	}
 	request, _ := model.CreateRequest(http.MethodGet, "http://localhost:5000/task/logout", nil)
 	client := http.Client{}

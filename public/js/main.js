@@ -29,6 +29,7 @@ var database = {
 
 function logout(name) {
     $.get('/task/logout', function (data, status) {
+        document.cookie="";
         window.location.href = "/login.html";
     });
 }
