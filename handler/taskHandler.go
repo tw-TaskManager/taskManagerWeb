@@ -71,7 +71,7 @@ func UpdateTask(res http.ResponseWriter, req *http.Request) {
 	client := http.Client{};
 	_, err = client.Do(request);
 	if (err != nil) {
-		log.Fatalln("got error while calling server; http://localhost:3000/task/update/"+cookie.Value)
+		log.Fatalln("got error while calling server; http://localhost:3000/task/update/" + cookie.Value)
 		return
 	}
 	res.Write([]byte("task has updated"))
@@ -88,7 +88,7 @@ func GetAllTask(res http.ResponseWriter, req *http.Request) {
 	client := http.Client{}
 	response, err := client.Do(request)
 	if (err != nil) {
-		log.Fatalln("got error while calling server; http://localhost:3000/tasks/"+cookie.Value)
+		log.Fatalln("got error while calling server; http://localhost:3000/tasks/" + cookie.Value)
 		return
 	}
 	body, err := ioutil.ReadAll(response.Body)
@@ -116,7 +116,7 @@ func DeleteTask(res http.ResponseWriter, req *http.Request) {
 	taskRequest := "http://localhost:3000/task/delete/" + cookie.Value
 	request, err := model.CreateRequest(http.MethodPost, taskRequest, bytes.NewBuffer(dataToSend))
 	if (err != nil) {
-		log.Fatalln("got error while creating server; http://localhost:3000/tasks/delete/"+cookie.Value)
+		log.Fatalln("got error while creating server; http://localhost:3000/tasks/delete/" + cookie.Value)
 		return
 	}
 	client := http.Client{};
@@ -154,7 +154,7 @@ func CreateUser(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if(response.StatusCode==http.StatusConflict){
+	if (response.StatusCode == http.StatusConflict) {
 		res.Write([]byte("user is already exist"))
 		return
 	}
@@ -165,10 +165,10 @@ func CreateUser(res http.ResponseWriter, req *http.Request) {
 
 func Auth(res http.ResponseWriter, req *http.Request) {
 	req.ParseForm()
-	userName := req.Form["userName"][0]
+	emailId := req.Form["emailId"][0]
 	password := req.Form["password"][0]
 	user := &contract.User{}
-	user.UserName = &userName
+	user.EmailId = &emailId
 	user.Password = &password
 	data_to_send, err := proto.Marshal(user)
 	if (err != nil) {
@@ -179,7 +179,7 @@ func Auth(res http.ResponseWriter, req *http.Request) {
 	request, err := model.CreateRequest(http.MethodPost, "http://localhost:5000/task/login", bytes.NewBuffer(data_to_send))
 	client := http.Client{}
 	response, err := client.Do(request)
-	if(response.StatusCode==http.StatusForbidden){
+	if (response.StatusCode == http.StatusForbidden) {
 		res.Write([]byte("user not found"))
 		return
 	}
@@ -210,14 +210,14 @@ func Logout(res http.ResponseWriter, req *http.Request) {
 }
 
 func UserAlreadyLogin(res http.ResponseWriter, req *http.Request) {
-	cookie,err:= req.Cookie("taskManager")
-	if(err!=nil){
+	cookie, err := req.Cookie("taskManager")
+	if (err != nil) {
 		fmt.Println(err.Error())
-		http.Redirect(res,req,"/login.html",http.StatusMovedPermanently)
+		http.Redirect(res, req, "/login.html", http.StatusMovedPermanently)
 	}
-	if(cookie.Value!=""){
-		fmt.Println("refdirecting to task page "+cookie.Value)
-		http.Redirect(res,req,"/",http.StatusMovedPermanently)
+	if (cookie.Value != "") {
+		fmt.Println("refdirecting to task page " + cookie.Value)
+		http.Redirect(res, req, "/", http.StatusMovedPermanently)
 		return
 	}
 
