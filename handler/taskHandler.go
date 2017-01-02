@@ -11,6 +11,7 @@ import (
 	"bytes"
 	"strconv"
 	"time"
+	"fmt"
 )
 
 func SaveTask(res http.ResponseWriter, req *http.Request) {
@@ -142,15 +143,19 @@ func CreateUser(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 	request, err := model.CreateRequest(http.MethodPost, "http://localhost:5000/task/createUser", bytes.NewBuffer(data_to_send))
-
 	if (err != nil) {
 		log.Fatalln("got error while creating server; http://localhost:3000/tasks/createUser")
 		return
 	}
 	client := http.Client{};
-	_, err = client.Do(request);
+	response, err := client.Do(request);
 	if (err != nil) {
 		log.Fatalln("got error while calling server.....")
+		return
+	}
+
+	if(response.StatusCode==http.StatusConflict){
+		res.Write([]byte("user is already exist"))
 		return
 	}
 
@@ -202,4 +207,18 @@ func Logout(res http.ResponseWriter, req *http.Request) {
 	client.Do(request)
 	res.Write([]byte("/login.html"))
 	return
+}
+
+func UserAlreadyLogin(res http.ResponseWriter, req *http.Request) {
+	cookie,err:= req.Cookie("taskManager")
+	if(err!=nil){
+		fmt.Println(err.Error())
+		http.Redirect(res,req,"/login.html",http.StatusMovedPermanently)
+	}
+	if(cookie.Value!=""){
+		fmt.Println("refdirecting to task page "+cookie.Value)
+		http.Redirect(res,req,"/",http.StatusMovedPermanently)
+		return
+	}
+
 }
