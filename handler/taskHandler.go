@@ -11,7 +11,6 @@ import (
 	"bytes"
 	"strconv"
 	"time"
-	"fmt"
 )
 
 func SaveTask(res http.ResponseWriter, req *http.Request) {
@@ -22,26 +21,26 @@ func SaveTask(res http.ResponseWriter, req *http.Request) {
 	data.Task = &task
 	dataToSend, err := proto.Marshal(data)
 	if (err != nil) {
-		log.Fatal("error occurs while creationg contract.")
+		log.Println(err.Error())
 		return
 	}
 	taskRequest := "http://localhost:3000/tasks/save/" + cookie.Value
 	request, err := model.CreateRequest(http.MethodPost, taskRequest, bytes.NewBuffer(dataToSend))
 	if (err != nil) {
-		log.Fatalln("got error while creating server..")
+		log.Println(err.Error())
 		return
 	}
 	client := http.Client{};
 	response, err := client.Do(request);
 	body, err := ioutil.ReadAll(response.Body)
 	if (err != nil) {
-		log.Fatalln("got error while reading")
+		log.Println("got error while reading")
 		return
 	}
 	contractOfResponse := contract.Response{}
 	err = proto.Unmarshal(body, &contractOfResponse)
 	if (err != nil) {
-		log.Fatalln("got error while parsing task")
+		log.Println("got error while parsing task")
 		return
 	}
 	res.Write(contractOfResponse.Response)
@@ -59,19 +58,19 @@ func UpdateTask(res http.ResponseWriter, req *http.Request) {
 	data.Id = &id32
 	dataToSend, err := proto.Marshal(data)
 	if (err != nil) {
-		log.Fatal("error occurs while creationg contract.")
+		log.Println(err.Error())
 		return
 	}
 	taskRequest := "http://localhost:3000/task/update/" + cookie.Value
 	request, err := model.CreateRequest(http.MethodPost, taskRequest, bytes.NewBuffer(dataToSend))
 	if (err != nil) {
-		log.Fatalln("got error while creating server..")
+		log.Println(err.Error())
 		return
 	}
 	client := http.Client{};
 	_, err = client.Do(request);
 	if (err != nil) {
-		log.Fatalln("got error while calling server; http://localhost:3000/task/update/" + cookie.Value)
+		log.Println("got error while calling server; http://localhost:3000/task/update/" + cookie.Value)
 		return
 	}
 	res.Write([]byte("task has updated"))
@@ -88,7 +87,7 @@ func GetAllTask(res http.ResponseWriter, req *http.Request) {
 	client := http.Client{}
 	response, err := client.Do(request)
 	if (err != nil) {
-		log.Fatalln("got error while calling server; http://localhost:3000/tasks/" + cookie.Value)
+		log.Println("got error while calling server; http://localhost:3000/tasks/" + cookie.Value)
 		return
 	}
 	body, err := ioutil.ReadAll(response.Body)
@@ -110,19 +109,19 @@ func DeleteTask(res http.ResponseWriter, req *http.Request) {
 	data.Id = &id32
 	dataToSend, err := proto.Marshal(data)
 	if (err != nil) {
-		log.Fatal("error occurs while creationg contract.")
+		log.Println(err.Error())
 		return
 	}
 	taskRequest := "http://localhost:3000/task/delete/" + cookie.Value
 	request, err := model.CreateRequest(http.MethodPost, taskRequest, bytes.NewBuffer(dataToSend))
 	if (err != nil) {
-		log.Fatalln("got error while creating server; http://localhost:3000/tasks/delete/" + cookie.Value)
+		log.Println("got error while creating server; http://localhost:3000/tasks/delete/" + cookie.Value)
 		return
 	}
 	client := http.Client{};
 	_, err = client.Do(request);
 	if (err != nil) {
-		log.Fatalln("got error while calling server;..")
+		log.Println("got error while calling server;..")
 		return
 	}
 	res.Write([]byte("deleted."))
@@ -139,18 +138,18 @@ func CreateUser(res http.ResponseWriter, req *http.Request) {
 	user.Password = &password
 	data_to_send, err := proto.Marshal(user)
 	if (err != nil) {
-		log.Fatal("error occurs while creationg contract for user.")
+		log.Println("error occurs while creationg contract for user.")
 		return
 	}
 	request, err := model.CreateRequest(http.MethodPost, "http://localhost:5000/task/createUser", bytes.NewBuffer(data_to_send))
 	if (err != nil) {
-		log.Fatalln("got error while creating server; http://localhost:3000/tasks/createUser")
+		log.Println("got error while creating server; http://localhost:3000/tasks/createUser")
 		return
 	}
 	client := http.Client{};
 	response, err := client.Do(request);
 	if (err != nil) {
-		log.Fatalln("got error while calling server.....")
+		log.Println("got error while calling server.....")
 		return
 	}
 
@@ -172,7 +171,7 @@ func Auth(res http.ResponseWriter, req *http.Request) {
 	user.Password = &password
 	data_to_send, err := proto.Marshal(user)
 	if (err != nil) {
-		log.Fatal("error occurs while creationg contract for user.")
+		log.Println("error occurs while creationg contract for user.")
 		return
 	}
 
@@ -212,11 +211,11 @@ func Logout(res http.ResponseWriter, req *http.Request) {
 func UserAlreadyLogin(res http.ResponseWriter, req *http.Request) {
 	cookie, err := req.Cookie("taskManager")
 	if (err != nil) {
-		fmt.Println(err.Error())
+		log.Println(err.Error())
 		http.Redirect(res, req, "/login.html", http.StatusMovedPermanently)
 	}
 	if (cookie.Value != "") {
-		fmt.Println("refdirecting to task page " + cookie.Value)
+		log.Println("refdirecting to task page " + cookie.Value)
 		http.Redirect(res, req, "/", http.StatusMovedPermanently)
 		return
 	}
